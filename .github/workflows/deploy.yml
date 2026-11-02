@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Publish to /design-system-template
+        run: |
+          out=$(aws cloudformation describe-stacks --stack-name tepid-winter-site --query "Stacks[0].Outputs" --output json)
+          bucket=$(echo "$out" | jq -r '.[] | select(.OutputKey=="BucketName") | .OutputValue')
+          dist=$(echo "$out" | jq -r '.[] | select(.OutputKey=="DistributionId") | .OutputValue')
+          aws s3 sync . "s3://$bucket/design-system-template/" --delete --exclude "*" --include "index.html" --include "*.css" --include "src/*.js" --cache-control "public,max-age=300"
+          aws cloudfront create-invalidation --distribution-id "$dist" --paths "/design-system-template/*" > /dev/null
