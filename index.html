@@ -25,7 +25,14 @@
         document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
         // Mobile view shows this page inside a phone-width frame of itself (?embed). The frame is the embed.
         if (/[?&]embed(&|$)/.test(location.search)) document.documentElement.dataset.embed = '';
-        else if (localStorage.getItem('view') === 'mobile') document.documentElement.dataset.view = 'mobile';
+        else if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+          // Touch devices are already mobile: the toggle switches the viewport width instead of framing the page.
+          document.documentElement.dataset.touch = '';
+          if (localStorage.getItem('view-touch') === 'desktop') {
+            document.querySelector('meta[name="viewport"]').content = 'width=1100';
+            document.documentElement.dataset.view = 'desktop';
+          } else document.documentElement.dataset.view = 'mobile';
+        } else if (localStorage.getItem('view') === 'mobile') document.documentElement.dataset.view = 'mobile';
         document.getElementById('alt-theme').disabled = palette !== 'alt';
       })();
     </script>

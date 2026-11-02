@@ -523,11 +523,11 @@ p { margin: 0; }
    frame, so the real mobile breakpoints apply. The toggle button moves into the bar above the frame. */
 [data-embed] #view-toggle { display: none; }
 .device-stage { display: none; }
-[data-view="mobile"] body > header,
-[data-view="mobile"] body > main,
-[data-view="mobile"] body > footer { display: none; }
-[data-view="mobile"] body { overflow: hidden; }
-[data-view="mobile"] .device-stage {
+:root:not([data-touch])[data-view="mobile"] body > header,
+:root:not([data-touch])[data-view="mobile"] body > main,
+:root:not([data-touch])[data-view="mobile"] body > footer { display: none; }
+:root:not([data-touch])[data-view="mobile"] body { overflow: hidden; }
+:root:not([data-touch])[data-view="mobile"] .device-stage {
   display: flex;
   flex-direction: column;
   align-items: center;

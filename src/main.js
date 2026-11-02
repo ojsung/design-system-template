@@ -184,6 +184,20 @@ const viewToggle = document.getElementById('view-toggle');
 const toolbar = viewToggle.parentElement;
 let stage = null;
 
+// Touch devices are already mobile, so there the toggle changes the layout viewport instead: Desktop lays
+// the page out at a desktop width (the browser scales it to fit), Mobile goes back to the device width.
+const touch = 'touch' in root.dataset;
+const viewport = document.querySelector('meta[name="viewport"]');
+
+function applyTouchView(view) {
+  const mobile = view === 'mobile';
+  root.dataset.view = view;
+  viewport.content = mobile ? 'width=device-width, initial-scale=1.0' : 'width=1100';
+  viewToggle.setAttribute('aria-pressed', String(mobile));
+  viewToggle.textContent = mobile ? 'View: Mobile' : 'View: Desktop';
+  fitTopbar();
+}
+
 function applyView(view) {
   const mobile = view === 'mobile';
   root.dataset.view = mobile ? 'mobile' : 'desktop';
@@ -203,7 +217,14 @@ function applyView(view) {
   }
 }
 
-if (!('embed' in root.dataset)) {
+if (touch) {
+  viewToggle.addEventListener('click', () => {
+    const next = root.dataset.view === 'mobile' ? 'desktop' : 'mobile';
+    write('view-touch', next);
+    applyTouchView(next);
+  });
+  applyTouchView(root.dataset.view);
+} else if (!('embed' in root.dataset)) {
   viewToggle.addEventListener('click', () => {
     const next = root.dataset.view === 'mobile' ? 'desktop' : 'mobile';
     write('view', next);
