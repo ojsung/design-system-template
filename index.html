@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./main.css">
+    <link rel="stylesheet" href="./components.css">
+    <!-- Alternate theme: stays off until the theme button/saved choice turns it on -->
+    <link rel="stylesheet" href="./main-alt.css" id="alt-theme" disabled>
+    <!-- Applies the saved mode and theme before first paint so the page doesn't flash. -->
+    <script>
+      (function () {
+        var mode = 'dark', palette = 'main';
+        try {
+          mode = localStorage.getItem('theme-mode') || mode;
+          palette = localStorage.getItem('theme-palette') || palette;
+        } catch (e) {}
+        var theme = mode;
+        if (mode === 'system') {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
+        document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+        document.getElementById('alt-theme').disabled = palette !== 'alt';
+      })();
+    </script>
+    <title>Design System</title>
+    <style>
+      /* Page header and sections */
+      .hero { padding-block: var(--space-16) var(--space-12); }
+      .eyebrow {
+        font: var(--font-weight-semibold) var(--font-size-xs) / 1 var(--font-family-body);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--color-secondary);
+      }
+      .hero h1 { margin-top: var(--space-3); font-size: clamp(2rem, 6vw, 3.5rem); text-transform: uppercase; }
+      .hero p { margin-top: var(--space-4); max-width: 60ch; color: var(--color-text-secondary); font-size: var(--font-size-lg); }
+
+      section { padding-block: var(--space-12); border-top: 1px solid var(--color-border); }
+      section > .container > h2 { font-size: var(--font-size-3xl); text-transform: uppercase; }
+      section > .container > .lede { margin-top: var(--space-2); max-width: 60ch; color: var(--color-text-secondary); }
+      .block { margin-top: var(--space-8); }
+      .block > h3 {
+        margin-bottom: var(--space-4);
+        padding-bottom: var(--space-2);
+        border-bottom: 1px solid var(--color-border);
+        font: var(--font-weight-semibold) var(--font-size-sm) / 1 var(--font-family-body);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--color-text-muted);
+      }
+      code, .mono { font-family: var(--font-family-mono); font-size: var(--font-size-xs); color: var(--color-text-muted); }
+
+      /* Measurement brackets: a horizontal one under an element, a vertical one beside it */
+      .measure { display: inline-block; vertical-align: top; max-width: 100%; }
+      .dim {
+        position: relative;
+        display: block;
+        height: 0.5rem;
+        margin-top: var(--space-2);
+        border: 1px solid var(--color-text-muted);
+        border-top: 0;
+      }
+      .dim > span, .vdim > span {
+        position: absolute;
+        white-space: nowrap;
+        font: var(--font-weight-medium) var(--font-size-xs) / 1 var(--font-family-mono);
+        color: var(--color-text-muted);
+      }
+      .dim > span { top: 100%; left: 50%; transform: translateX(-50%); padding-top: var(--space-1); }
+      .vmeasure { display: flex; align-items: flex-start; gap: var(--space-2); }
+      .vdim {
+        position: relative;
+        flex: none;
+        width: 0.5rem;
+        margin-right: 4.5rem;
+        border: 1px solid var(--color-text-muted);
+        border-left: 0;
+      }
+      .vdim > span { left: 100%; top: 50%; transform: translateY(-50%); padding-left: var(--space-2); }
+      .tag {
+        display: inline-block;
+        font: var(--font-weight-medium) var(--font-size-xs) / 1 var(--font-family-mono);
+        color: var(--color-text-muted);
+        white-space: nowrap;
+      }
+
+      /* Typography */
+      .faces { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--space-6); }
+      .face {
+        min-width: 0;
+        padding: var(--space-6);
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+      }
+      .face .role { display: flex; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; }
+      .face .big { margin-block: var(--space-4); font-size: 5rem; line-height: 1; }
+      .face.title .big { font-family: var(--font-family-title); font-weight: var(--font-weight-bold); }
+      .face.body .big { font-family: var(--font-family-body); }
+      .face .alphabet { overflow-wrap: anywhere; color: var(--color-text-secondary); }
+      .face.title .alphabet { font-family: var(--font-family-title); }
+      .weights { margin: var(--space-4) 0 0; padding: 0; list-style: none; display: grid; gap: var(--space-1); }
+      .weights li { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-4); }
+      .face.title .weights li { font-family: var(--font-family-title); }
+
+      .scale { display: grid; }
+      .scale-row {
+        display: grid;
+        grid-template-columns: 9rem 11rem minmax(0, 1fr);
+        align-items: baseline;
+        gap: var(--space-4);
+        padding-block: var(--space-3);
+        border-bottom: 1px solid var(--color-border);
+      }
+      .scale-row .sample { font-family: var(--font-family-title); font-weight: var(--font-weight-bold); text-transform: uppercase; overflow-wrap: anywhere; line-height: var(--line-height-tight); }
+      .leading { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--space-6); }
+      .leading p { padding: var(--space-3); background: var(--color-surface-sunken); border-radius: var(--radius-sm); color: var(--color-text-secondary); }
+      .leading .tag { display: block; margin-bottom: var(--space-2); }
+
+      /* Colors */
+      .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+      .swatch { min-width: 0; display: grid; gap: var(--space-1); }
+      .swatch .fill { height: 4rem; border: 1px solid var(--color-border-strong); border-radius: var(--radius-sm); background: var(--c); }
+      .swatch b { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
+      .swatch .hex { overflow-wrap: anywhere; }
+
+      /* Spacing */
+      .space-row { display: grid; grid-template-columns: 11rem minmax(0, 1fr); align-items: start; gap: var(--space-4); padding-block: var(--space-2); }
+      .space-row .name { font: var(--font-weight-medium) var(--font-size-sm) / 1.4 var(--font-family-body); }
+      .space-row .name code { display: block; }
+      .bar { height: 1.5rem; width: var(--s); background: var(--color-primary); border-radius: 1px; }
+      .measure.spaced { width: var(--s); margin-bottom: var(--space-6); }
+
+      /* Shape and sizing */
+      .shapes { display: flex; flex-wrap: wrap; gap: var(--space-8); }
+      .shape-box { width: 5rem; height: 5rem; background: var(--color-primary-subtle); border: 2px solid var(--color-primary); border-radius: var(--r); }
+      .measure.shape { width: 5rem; margin-bottom: var(--space-6); }
+      .shape-name { display: block; margin-top: var(--space-2); text-align: center; }
+      .controls { display: flex; flex-wrap: wrap; gap: var(--space-8); align-items: flex-start; }
+      .controls .btn { height: var(--h); }
+      .shadows { display: flex; flex-wrap: wrap; gap: var(--space-8); }
+      .shadow-box { width: 9rem; height: 6rem; display: grid; place-items: center; background: var(--color-surface-raised); border-radius: var(--radius-md); box-shadow: var(--sh); }
+      .container-demo { height: 1.5rem; width: min(100%, var(--container-width)); background: var(--color-secondary); border-radius: 1px; opacity: 0.85; }
+      .measure.wide { width: min(100%, var(--container-width)); display: block; margin-bottom: var(--space-6); }
+
+      .form-demo { max-width: 36rem; padding: var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+      .form-demo h4 { margin: 0 0 var(--space-1); font: var(--font-weight-bold) var(--font-size-xl) / 1.2 var(--font-family-title); text-transform: uppercase; }
+      .form-demo > p { margin-bottom: var(--space-4); color: var(--color-text-secondary); font-size: var(--font-size-sm); }
+      .form-demo .form-grid { gap: var(--space-4); }
+      .specs { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-6); margin-top: var(--space-4); }
+
+      footer { padding-block: var(--space-8); border-top: 1px solid var(--color-border); color: var(--color-text-muted); font-size: var(--font-size-sm); }
+
+      @media (max-width: 64rem) {
+        .hero { padding-block: var(--space-12) var(--space-8); }
+        section { padding-block: var(--space-8); }
+      }
+      @media (max-width: 48rem) {
+        .hero { padding-block: var(--space-8) var(--space-6); }
+        section { padding-block: var(--space-6); }
+        section > .container > h2 { font-size: var(--font-size-2xl); }
+        .block { margin-top: var(--space-6); }
+      }
+      @media (max-width: 40rem) {
+        .scale-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+        .space-row { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+        .face { padding: var(--space-4); }
+        .face .big { font-size: 4rem; }
+      }
+      @media (max-width: 30rem) {
+        .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+        .shapes, .shadows, .controls { gap: var(--space-6); }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container">
+        <div class="brand">Brand<span>/</span>Name <span class="brand-sub">Design System</span></div>
+        <input class="menu-check" type="checkbox" id="menu-toggle" aria-label="Menu">
+        <label class="burger" for="menu-toggle"><span class="bars"></span></label>
+        <div class="menu" id="menu">
+        <nav aria-label="Sections">
+          <a href="#typography">Typography</a>
+          <a href="#colors">Colors</a>
+          <a href="#spacing">Spacing</a>
+          <a href="#shape">Shape &amp; sizing</a>
+          <a href="#forms">Forms</a>
+          <a href="#carousel">Photo carousel</a>
+          <a href="#site-parts">Site parts</a>
+        </nav>
+        <div class="toolbar">
+          <div class="segmented" role="group" aria-label="Color mode">
+            <button type="button" data-mode="light" aria-pressed="false">Light</button>
+            <button type="button" data-mode="dark" aria-pressed="true">Dark</button>
+            <button type="button" data-mode="system" aria-pressed="false">System</button>
+          </div>
+          <button class="btn sm ghost" id="palette-toggle" type="button" aria-pressed="false">Theme: Main</button>
+        </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="container hero">
+        <div class="eyebrow">Brand Name</div>
+        <h1>Design system</h1>
+        <p>Fonts, colors, spacing and components for the example site. Sizes in square brackets are from the stylesheet, using a 16px root. The main theme is the default palette. The alt theme is a second pitch with warm, rich tones.</p>
+      </div>
+
+      <section id="typography">
+        <div class="container">
+          <h2>Typography</h2>
+          <p class="lede">Archivo for titles, Barlow for everything else.</p>
+
+          <div class="block">
+            <h3>Typefaces</h3>
+            <div class="faces">
+              <article class="face title">
+                <div class="role"><b>Archivo · Title</b><code>--font-family-title</code></div>
+                <div class="big" aria-hidden="true">Aa</div>
+                <p class="alphabet">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789</p>
+                <ul class="weights">
+                  <li style="font-weight: var(--font-weight-regular)"><span>Regular</span><span class="tag">[ 400 ]</span></li>
+                  <li style="font-weight: var(--font-weight-medium)"><span>Medium</span><span class="tag">[ 500 ]</span></li>
+                  <li style="font-weight: var(--font-weight-semibold)"><span>Semibold</span><span class="tag">[ 600 ]</span></li>
+                  <li style="font-weight: var(--font-weight-bold)"><span>Bold</span><span class="tag">[ 700 ]</span></li>
+                </ul>
+              </article>
+              <article class="face body">
+                <div class="role"><b>Barlow · Body</b><code>--font-family-body</code></div>
+                <div class="big" aria-hidden="true">Aa</div>
+                <p class="alphabet">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789</p>
+                <ul class="weights">
+                  <li style="font-weight: var(--font-weight-regular)"><span>Regular</span><span class="tag">[ 400 ]</span></li>
+                  <li style="font-weight: var(--font-weight-medium)"><span>Medium</span><span class="tag">[ 500 ]</span></li>
+                  <li style="font-weight: var(--font-weight-semibold)"><span>Semibold</span><span class="tag">[ 600 ]</span></li>
+                  <li style="font-weight: var(--font-weight-bold)"><span>Bold</span><span class="tag">[ 700 ]</span></li>
+                </ul>
+              </article>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Size scale</h3>
+            <div class="scale">
+              <div class="scale-row"><code>--font-size-3xl</code><span class="tag">[ 2rem · 32px ]</span><span class="sample" style="font-size: var(--font-size-3xl)">Lorem ipsum dolor.</span></div>
+              <div class="scale-row"><code>--font-size-2xl</code><span class="tag">[ 1.5rem · 24px ]</span><span class="sample" style="font-size: var(--font-size-2xl)">Lorem ipsum dolor.</span></div>
+              <div class="scale-row"><code>--font-size-xl</code><span class="tag">[ 1.25rem · 20px ]</span><span class="sample" style="font-size: var(--font-size-xl)">Lorem ipsum dolor.</span></div>
+              <div class="scale-row"><code>--font-size-lg</code><span class="tag">[ 1.125rem · 18px ]</span><span style="font-size: var(--font-size-lg)">Gatherings, fundraisers and good company.</span></div>
+              <div class="scale-row"><code>--font-size-md</code><span class="tag">[ 1rem · 16px ]</span><span style="font-size: var(--font-size-md)">Gatherings, fundraisers and good company.</span></div>
+              <div class="scale-row"><code>--font-size-sm</code><span class="tag">[ 0.875rem · 14px ]</span><span style="font-size: var(--font-size-sm)">Gatherings, fundraisers and good company.</span></div>
+              <div class="scale-row"><code>--font-size-xs</code><span class="tag">[ 0.75rem · 12px ]</span><span style="font-size: var(--font-size-xs)">Gatherings, fundraisers and good company.</span></div>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Line height</h3>
+            <div class="leading">
+              <div><span class="tag"><code>--line-height-tight</code> [ 1.2 ]</span><p style="line-height: var(--line-height-tight)">Lorem ipsum dolor sit amet, consectetur adipiscing elit are all welcome on the dance floor.</p></div>
+              <div><span class="tag"><code>--line-height-normal</code> [ 1.5 ]</span><p style="line-height: var(--line-height-normal)">Lorem ipsum dolor sit amet, consectetur adipiscing elit are all welcome on the dance floor.</p></div>
+              <div><span class="tag"><code>--line-height-relaxed</code> [ 1.75 ]</span><p style="line-height: var(--line-height-relaxed)">Lorem ipsum dolor sit amet, consectetur adipiscing elit are all welcome on the dance floor.</p></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="colors">
+        <div class="container">
+          <h2>Colors</h2>
+          <p class="lede">Every color changes with the theme. Use the toggle at the top to compare light and dark. Or check out the Alt Theme</p>
+
+          <div class="block">
+            <h3>Brand and actions</h3>
+            <ul class="swatches">
+              <li class="swatch" data-token="primary" style="--c: var(--color-primary)"><span class="fill"></span><b>primary</b><code class="hex"></code></li>
+              <li class="swatch" data-token="primary-hover" style="--c: var(--color-primary-hover)"><span class="fill"></span><b>primary-hover</b><code class="hex"></code></li>
+              <li class="swatch" data-token="primary-active" style="--c: var(--color-primary-active)"><span class="fill"></span><b>primary-active</b><code class="hex"></code></li>
+              <li class="swatch" data-token="primary-subtle" style="--c: var(--color-primary-subtle)"><span class="fill"></span><b>primary-subtle</b><code class="hex"></code></li>
+              <li class="swatch" data-token="text-on-primary" style="--c: var(--color-text-on-primary)"><span class="fill"></span><b>text-on-primary</b><code class="hex"></code></li>
+              <li class="swatch" data-token="secondary" style="--c: var(--color-secondary)"><span class="fill"></span><b>secondary</b><code class="hex"></code></li>
+              <li class="swatch" data-token="secondary-hover" style="--c: var(--color-secondary-hover)"><span class="fill"></span><b>secondary-hover</b><code class="hex"></code></li>
+              <li class="swatch" data-token="accent" style="--c: var(--color-accent)"><span class="fill"></span><b>accent</b><code class="hex"></code></li>
+            </ul>
+          </div>
+
+          <div class="block">
+            <h3>Backgrounds and surfaces</h3>
+            <ul class="swatches">
+              <li class="swatch" data-token="background" style="--c: var(--color-background)"><span class="fill"></span><b>background</b><code class="hex"></code></li>
+              <li class="swatch" data-token="surface" style="--c: var(--color-surface)"><span class="fill"></span><b>surface</b><code class="hex"></code></li>
+              <li class="swatch" data-token="surface-raised" style="--c: var(--color-surface-raised)"><span class="fill"></span><b>surface-raised</b><code class="hex"></code></li>
+              <li class="swatch" data-token="surface-sunken" style="--c: var(--color-surface-sunken)"><span class="fill"></span><b>surface-sunken</b><code class="hex"></code></li>
+              <li class="swatch" data-token="overlay" style="--c: var(--color-overlay)"><span class="fill"></span><b>overlay</b><code class="hex"></code></li>
+            </ul>
+          </div>
+
+          <div class="block">
+            <h3>Text</h3>
+            <ul class="swatches">
+              <li class="swatch" data-token="text-primary" style="--c: var(--color-text-primary)"><span class="fill"></span><b>text-primary</b><code class="hex"></code></li>
+              <li class="swatch" data-token="text-secondary" style="--c: var(--color-text-secondary)"><span class="fill"></span><b>text-secondary</b><code class="hex"></code></li>
+              <li class="swatch" data-token="text-muted" style="--c: var(--color-text-muted)"><span class="fill"></span><b>text-muted</b><code class="hex"></code></li>
+              <li class="swatch" data-token="text-inverse" style="--c: var(--color-text-inverse)"><span class="fill"></span><b>text-inverse</b><code class="hex"></code></li>
+              <li class="swatch" data-token="text-link" style="--c: var(--color-text-link)"><span class="fill"></span><b>text-link</b><code class="hex"></code></li>
+              <li class="swatch" data-token="text-link-hover" style="--c: var(--color-text-link-hover)"><span class="fill"></span><b>text-link-hover</b><code class="hex"></code></li>
+            </ul>
+          </div>
+
+          <div class="block">
+            <h3>Borders and focus</h3>
+            <ul class="swatches">
+              <li class="swatch" data-token="border" style="--c: var(--color-border)"><span class="fill"></span><b>border</b><code class="hex"></code></li>
+              <li class="swatch" data-token="border-strong" style="--c: var(--color-border-strong)"><span class="fill"></span><b>border-strong</b><code class="hex"></code></li>
+              <li class="swatch" data-token="focus-ring" style="--c: var(--color-focus-ring)"><span class="fill"></span><b>focus-ring</b><code class="hex"></code></li>
+              <li class="swatch" data-token="selection" style="--c: var(--color-selection)"><span class="fill"></span><b>selection</b><code class="hex"></code></li>
+            </ul>
+          </div>
+
+          <div class="block">
+            <h3>Status</h3>
+            <ul class="swatches">
+              <li class="swatch" data-token="success" style="--c: var(--color-success)"><span class="fill"></span><b>success</b><code class="hex"></code></li>
+              <li class="swatch" data-token="success-subtle" style="--c: var(--color-success-subtle)"><span class="fill"></span><b>success-subtle</b><code class="hex"></code></li>
+              <li class="swatch" data-token="warning" style="--c: var(--color-warning)"><span class="fill"></span><b>warning</b><code class="hex"></code></li>
+              <li class="swatch" data-token="warning-subtle" style="--c: var(--color-warning-subtle)"><span class="fill"></span><b>warning-subtle</b><code class="hex"></code></li>
+              <li class="swatch" data-token="danger" style="--c: var(--color-danger)"><span class="fill"></span><b>danger</b><code class="hex"></code></li>
+              <li class="swatch" data-token="danger-subtle" style="--c: var(--color-danger-subtle)"><span class="fill"></span><b>danger-subtle</b><code class="hex"></code></li>
+              <li class="swatch" data-token="info" style="--c: var(--color-info)"><span class="fill"></span><b>info</b><code class="hex"></code></li>
+              <li class="swatch" data-token="info-subtle" style="--c: var(--color-info-subtle)"><span class="fill"></span><b>info-subtle</b><code class="hex"></code></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="spacing">
+        <div class="container">
+          <h2>Spacing</h2>
+          <p class="lede">One scale for padding, margins and gaps. Each bar is drawn at its real width.</p>
+
+          <div class="block">
+            <div class="space-row"><span class="name">space-0<code>--space-0 · 0</code></span><div class="measure spaced" style="--s: var(--space-0)"><div class="bar"></div><span class="dim"><span>[ 0px ]</span></span></div></div>
+            <div class="space-row"><span class="name">space-1<code>--space-1 · 0.25rem</code></span><div class="measure spaced" style="--s: var(--space-1)"><div class="bar"></div><span class="dim"><span>[ 4px ]</span></span></div></div>
+            <div class="space-row"><span class="name">space-2<code>--space-2 · 0.5rem</code></span><div class="measure spaced" style="--s: var(--space-2)"><div class="bar"></div><span class="dim"><span>[ 8px ]</span></span></div></div>
+            <div class="space-row"><span class="name">space-3<code>--space-3 · 0.75rem</code></span><div class="measure spaced" style="--s: var(--space-3)"><div class="bar"></div><span class="dim"><span>[ 12px ]</span></span></div></div>
+            <div class="space-row"><span class="name">space-4<code>--space-4 · 1rem</code></span><div class="measure spaced" style="--s: var(--space-4)"><div class="bar"></div><span class="dim"><span>[ 16px ]</span></span></div></div>
+            <div class="space-row"><span class="name">space-6<code>--space-6 · 1.5rem</code></span><div class="measure spaced" style="--s: var(--space-6)"><div class="bar"></div><span class="dim"><span>[ 24px ]</span></span></div></div>
+            <div class="space-row"><span class="name">space-8<code>--space-8 · 2rem</code></span><div class="measure spaced" style="--s: var(--space-8)"><div class="bar"></div><span class="dim"><span>[ 32px ]</span></span></div></div>
+            <div class="space-row"><span class="name">space-12<code>--space-12 · 3rem</code></span><div class="measure spaced" style="--s: var(--space-12)"><div class="bar"></div><span class="dim"><span>[ 48px ]</span></span></div></div>
+            <div class="space-row"><span class="name">space-16<code>--space-16 · 4rem</code></span><div class="measure spaced" style="--s: var(--space-16)"><div class="bar"></div><span class="dim"><span>[ 64px ]</span></span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="shape">
+        <div class="container">
+          <h2>Shape &amp; sizing</h2>
+          <p class="lede">Corner radii, control heights, the page container, and shadows.</p>
+
+          <div class="block">
+            <h3>Radius</h3>
+            <div class="shapes">
+              <div><div class="measure shape"><div class="shape-box" style="--r: var(--radius-sm)"></div><span class="dim"><span>[ 4px ]</span></span></div><code class="shape-name">--radius-sm</code></div>
+              <div><div class="measure shape"><div class="shape-box" style="--r: var(--radius-md)"></div><span class="dim"><span>[ 8px ]</span></span></div><code class="shape-name">--radius-md</code></div>
+              <div><div class="measure shape"><div class="shape-box" style="--r: var(--radius-lg)"></div><span class="dim"><span>[ 12px ]</span></span></div><code class="shape-name">--radius-lg</code></div>
+              <div><div class="measure shape"><div class="shape-box" style="--r: var(--radius-full)"></div><span class="dim"><span>[ 9999px ]</span></span></div><code class="shape-name">--radius-full</code></div>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Control height</h3>
+            <div class="controls">
+              <div class="vmeasure"><button class="btn" type="button" style="--h: var(--control-height-sm)">Small</button><span class="vdim" style="height: var(--control-height-sm)"><span>[ 32px ]</span></span></div>
+              <div class="vmeasure"><button class="btn" type="button" style="--h: var(--control-height-md)">Medium</button><span class="vdim" style="height: var(--control-height-md)"><span>[ 40px ]</span></span></div>
+              <div class="vmeasure"><button class="btn" type="button" style="--h: var(--control-height-lg)">Large</button><span class="vdim" style="height: var(--control-height-lg)"><span>[ 48px ]</span></span></div>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Container width</h3>
+            <div class="measure wide"><div class="container-demo"></div><span class="dim"><span>[ 72rem · 1152px max ]</span></span></div>
+          </div>
+
+          <div class="block">
+            <h3>Shadow</h3>
+            <div class="shadows">
+              <div><div class="shadow-box" style="--sh: var(--shadow-sm)"><span class="tag">[ 0 1px 2px ]</span></div><code class="shape-name">--shadow-sm</code></div>
+              <div><div class="shadow-box" style="--sh: var(--shadow-md)"><span class="tag">[ 0 4px 12px ]</span></div><code class="shape-name">--shadow-md</code></div>
+              <div><div class="shadow-box" style="--sh: var(--shadow-lg)"><span class="tag">[ 0 12px 32px ]</span></div><code class="shape-name">--shadow-lg</code></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="forms">
+        <div class="container">
+          <h2>Forms</h2>
+          <p class="lede">Fields, choices, validation states and a full example. Field heights follow the control scale.</p>
+
+          <div class="block">
+            <h3>Text fields</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label class="label" for="ex-name">Name</label>
+                <input class="input" id="ex-name" type="text" placeholder="Your name" autocomplete="off">
+                <p class="help">Shown on your RSVP.</p>
+              </div>
+              <div class="field">
+                <label class="label" for="ex-email">Email</label>
+                <input class="input" id="ex-email" type="email" placeholder="you@example.com" autocomplete="off">
+                <p class="help">We only use it for event updates.</p>
+              </div>
+              <div class="field">
+                <label class="label" for="ex-event">Event</label>
+                <select class="select" id="ex-event">
+                  <option>Featured Event One</option>
+                  <option>Featured Event Two</option>
+                  <option>Gear Swap &amp; Social</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label" for="ex-guests">Guests <span class="opt">(optional)</span></label>
+                <input class="input" id="ex-guests" type="number" min="0" max="4" value="1">
+              </div>
+              <div class="field wide">
+                <label class="label" for="ex-note">Message</label>
+                <textarea class="textarea" id="ex-note" placeholder="Anything we should know?"></textarea>
+              </div>
+            </div>
+            <div class="specs">
+              <span class="tag">[ field height 40px ]</span>
+              <span class="tag">[ textarea min 96px ]</span>
+              <span class="tag">[ radius 4px ]</span>
+              <span class="tag">[ field gap 16px ]</span>
+              <span class="tag">[ label to field 4px ]</span>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>States</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label class="label" for="st-focus">Focus</label>
+                <input class="input is-focus" id="st-focus" type="text" value="Focused field">
+                <p class="help">3px ring in the focus color.</p>
+              </div>
+              <div class="field">
+                <label class="label" for="st-error">Error</label>
+                <input class="input" id="st-error" type="email" value="name@" aria-invalid="true" aria-describedby="st-error-msg">
+                <p class="error" id="st-error-msg">Enter a full email address, like name@example.com.</p>
+              </div>
+              <div class="field">
+                <label class="label" for="st-ok">Success</label>
+                <input class="input is-valid" id="st-ok" type="email" value="rider@example.com" aria-describedby="st-ok-msg">
+                <p class="success" id="st-ok-msg">Looks good.</p>
+              </div>
+              <div class="field">
+                <label class="label" for="st-off">Disabled</label>
+                <input class="input" id="st-off" type="text" value="Sold out" disabled>
+                <p class="help">Registration is closed.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Choices</h3>
+            <div class="form-grid">
+              <fieldset class="choices">
+                <legend>Checkboxes</legend>
+                <label class="check"><input type="checkbox" checked><span class="text"><b>Email me event updates</b></span></label>
+                <label class="check"><input type="checkbox"><span class="text"><b>Volunteer at the door</b><span class="help">We will follow up with details.</span></span></label>
+                <label class="check"><input type="checkbox" disabled><span class="text"><b>Member discount</b></span></label>
+              </fieldset>
+              <fieldset class="choices">
+                <legend>Radio buttons</legend>
+                <label class="check"><input type="radio" name="ex-ticket" checked><span class="text"><b>General entry</b></span></label>
+                <label class="check"><input type="radio" name="ex-ticket"><span class="text"><b>VIP</b><span class="help">Early entry and a reserved table.</span></span></label>
+                <label class="check"><input type="radio" name="ex-ticket" disabled><span class="text"><b>Table for four</b></span></label>
+              </fieldset>
+              <fieldset class="choices">
+                <legend>Switches</legend>
+                <label class="check"><input class="switch" type="checkbox" role="switch" checked><span class="text"><b>Show me on the guest list</b></span></label>
+                <label class="check"><input class="switch" type="checkbox" role="switch"><span class="text"><b>Text me reminders</b></span></label>
+                <label class="check"><input class="switch" type="checkbox" role="switch" disabled><span class="text"><b>Sponsor perks</b></span></label>
+              </fieldset>
+            </div>
+            <div class="specs">
+              <span class="tag">[ checkbox and radio 20px ]</span>
+              <span class="tag">[ switch 40 × 24px ]</span>
+              <span class="tag">[ choice gap 12px ]</span>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Field height</h3>
+            <div class="controls">
+              <div class="vmeasure"><input class="input sm" type="text" placeholder="Small" aria-label="Small field" style="width: 12rem"><span class="vdim" style="height: var(--control-height-sm)"><span>[ 32px ]</span></span></div>
+              <div class="vmeasure"><input class="input" type="text" placeholder="Medium" aria-label="Medium field" style="width: 12rem"><span class="vdim" style="height: var(--control-height-md)"><span>[ 40px ]</span></span></div>
+              <div class="vmeasure"><input class="input lg" type="text" placeholder="Large" aria-label="Large field" style="width: 12rem"><span class="vdim" style="height: var(--control-height-lg)"><span>[ 48px ]</span></span></div>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Example form</h3>
+            <div class="measure wide" style="max-width: 36rem">
+              <form class="form-demo" data-demo action="#">
+                <h4>Save your spot</h4>
+                <p>Free to attend. 21 and over, with ID.</p>
+                <div class="form-grid">
+                  <div class="field">
+                    <label class="label" for="rsvp-name">Name</label>
+                    <input class="input" id="rsvp-name" name="name" type="text" required autocomplete="name">
+                  </div>
+                  <div class="field">
+                    <label class="label" for="rsvp-email">Email</label>
+                    <input class="input" id="rsvp-email" name="email" type="email" required autocomplete="email">
+                  </div>
+                  <div class="field wide">
+                    <label class="label" for="rsvp-event">Event</label>
+                    <select class="select" id="rsvp-event" name="event">
+                      <option>Featured Event One</option>
+                      <option>Featured Event Two</option>
+                      <option>Gear Swap &amp; Social</option>
+                    </select>
+                  </div>
+                  <div class="field wide">
+                    <label class="label" for="rsvp-note">Message <span class="opt">(optional)</span></label>
+                    <textarea class="textarea" id="rsvp-note" name="note"></textarea>
+                  </div>
+                  <label class="check wide"><input type="checkbox" name="updates" checked><span class="text"><b>Email me about future events</b></span></label>
+                </div>
+                <div class="form-actions">
+                  <button class="btn" type="submit">Reserve</button>
+                  <button class="btn ghost" type="reset">Clear</button>
+                </div>
+              </form>
+              <span class="dim"><span>[ 36rem · 576px max ]</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="carousel">
+        <div class="container">
+          <h2>Photo carousel</h2>
+          <p class="lede">One large photo at a time with thumbnails underneath. Swipe the photo, use the arrows, or tap a thumbnail. Thumbnails scroll sideways when there are more photos than fit.</p>
+
+          <div class="block">
+            <div class="carousel" role="region" aria-roledescription="carousel" aria-label="Event photos">
+              <div class="stage">
+                <div class="track" tabindex="0" aria-label="Photos. Swipe or use the arrow keys.">
+                  <figure class="slide" role="group" aria-roledescription="slide" aria-label="1 of 6">
+                    <div class="photo p1"><span class="n">Photo 1</span><span class="hint">[ 3:2 · up to 960px wide ]</span></div>
+                    <figcaption><b>Event One</b>Lorem ipsum dolor sit amet.</figcaption>
+                  </figure>
+                  <figure class="slide" role="group" aria-roledescription="slide" aria-label="2 of 6">
+                    <div class="photo portrait p2"><span class="n">Photo 2</span><span class="hint">[ 2:3 portrait ]</span></div>
+                    <figcaption><b>Boot Black</b>Polishing up before doors.</figcaption>
+                  </figure>
+                  <figure class="slide" role="group" aria-roledescription="slide" aria-label="3 of 6">
+                    <div class="photo p3"><span class="n">Photo 3</span><span class="hint">[ 3:2 · up to 960px wide ]</span></div>
+                    <figcaption><b>Event Two</b>Consectetur adipiscing elit.</figcaption>
+                  </figure>
+                  <figure class="slide" role="group" aria-roledescription="slide" aria-label="4 of 6">
+                    <div class="photo p4"><span class="n">Photo 4</span><span class="hint">[ 3:2 · up to 960px wide ]</span></div>
+                    <figcaption><b>Brunch</b>Long tables after the run.</figcaption>
+                  </figure>
+                  <figure class="slide" role="group" aria-roledescription="slide" aria-label="5 of 6">
+                    <div class="photo portrait p5"><span class="n">Photo 5</span><span class="hint">[ 2:3 portrait ]</span></div>
+                    <figcaption><b>Gear Swap</b>Trading jackets and stories.</figcaption>
+                  </figure>
+                  <figure class="slide" role="group" aria-roledescription="slide" aria-label="6 of 6">
+                    <div class="photo p6"><span class="n">Photo 6</span><span class="hint">[ 3:2 · up to 960px wide ]</span></div>
+                    <figcaption><b>Last Call</b>Closing out the night.</figcaption>
+                  </figure>
+                </div>
+                <button class="arrow prev" type="button" aria-label="Previous photo"></button>
+                <button class="arrow next" type="button" aria-label="Next photo"></button>
+                <div class="counter">1 / 6</div>
+              </div>
+
+              <div class="thumbs">
+                <button class="thumb" type="button" aria-label="Show photo 1" aria-current="true"><span class="photo p1"><span class="n">1</span></span></button>
+                <button class="thumb" type="button" aria-label="Show photo 2" aria-current="false"><span class="photo portrait p2"><span class="n">2</span></span></button>
+                <button class="thumb" type="button" aria-label="Show photo 3" aria-current="false"><span class="photo p3"><span class="n">3</span></span></button>
+                <button class="thumb" type="button" aria-label="Show photo 4" aria-current="false"><span class="photo p4"><span class="n">4</span></span></button>
+                <button class="thumb" type="button" aria-label="Show photo 5" aria-current="false"><span class="photo portrait p5"><span class="n">5</span></span></button>
+                <button class="thumb" type="button" aria-label="Show photo 6" aria-current="false"><span class="photo p6"><span class="n">6</span></span></button>
+              </div>
+              <div class="measure" style="display: block; margin-top: var(--space-2); margin-bottom: var(--space-6)"><span class="dim"><span>[ thumbnail strip · 6 across · scrolls sideways past that ]</span></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="site-parts">
+        <div class="container">
+          <h2>Site parts</h2>
+          <p class="lede">Small pieces the example site builds on: cards, badges, the stitched and striped dividers, the automatic grid, and the hero colors.</p>
+
+          <div class="block">
+            <h3>Card and badge</h3>
+            <div class="card" style="max-width: 24rem">
+              <span class="badge">Free Entry</span>
+              <p style="margin-top: var(--space-3)">A card sits on the surface color with a hairline border and a soft shadow.</p>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Dividers</h3>
+            <span class="stripe-divider" aria-hidden="true"></span>
+            <hr class="stitch">
+          </div>
+
+          <div class="block">
+            <h3>Automatic grid</h3>
+            <p class="lede" style="margin-bottom: var(--space-4)">Fits as many columns as there is room for. Set <code>--grid-min</code> to change the smallest column.</p>
+            <ul class="auto-grid" style="--grid-min: 7.5rem">
+              <li class="card">1</li><li class="card">2</li><li class="card">3</li><li class="card">4</li><li class="card">5</li><li class="card">6</li><li class="card">7</li>
+            </ul>
+          </div>
+
+          <div class="block">
+            <h3>Hero colors</h3>
+            <div style="display: flex; align-items: center; padding: var(--space-6); background: var(--color-hero-bg); color: var(--color-hero-text); border-radius: var(--radius-md)">
+              <span class="stripe-divider" aria-hidden="true" style="margin: 0 var(--space-4) 0 0"></span>
+              Hero text on the hero background. It stays dark in every mode.
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">Design system template. Sizes assume a 16px root font size.</div>
+    </footer>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,116 @@
+/*
+  Alternate theme: warm, rich tones. A second example palette to show how a theme swaps in.
+  Load after main.css. It only overrides the light and dark color tokens;
+  shared tokens (type, spacing, shape) stay as defined in main.css.
+*/
+
+/* Light mode: deep red on cream, with blue links */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Brand and actions */
+  --color-primary: #9a1f2b;
+  --color-primary-hover: #7d1822;
+  --color-primary-active: #64121a;
+  --color-primary-subtle: #f5e2e0;
+  --color-text-on-primary: #ffffff;
+  --color-secondary: #1f4192;
+  --color-secondary-hover: #17327a;
+  --color-accent: #946a14;
+
+  /* Backgrounds and surfaces */
+  --color-background: #f6efe3;
+  --color-surface: #fffaf1;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #ece2d1;
+  --color-overlay: rgb(36 26 23 / 50%);
+
+  /* Text */
+  --color-text-primary: #241a17;
+  --color-text-secondary: #433630;
+  --color-text-muted: #52443c;
+  --color-text-inverse: #ffffff;
+  --color-text-link: #1f4192;
+  --color-text-link-hover: #17327a;
+
+  /* Borders and focus */
+  --color-border: #ddd0bb;
+  --color-border-strong: #8c7b66;
+  --color-focus-ring: #1f4192;
+  --color-selection: #e9d3cf;
+
+  /* Hero: banner art that stays dark in every mode */
+  --color-hero-bg: #000000;
+  --color-hero-text: #f5f2ee;
+
+  /* Status */
+  --color-success: #145a35;
+  --color-success-subtle: #e4f1e6;
+  --color-warning: #6b4309;
+  --color-warning-subtle: #fbeed3;
+  --color-danger: #8c221d;
+  --color-danger-subtle: #f9e6e2;
+  --color-info: #1a4f78;
+  --color-info-subtle: #e3eef6;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgb(36 26 23 / 8%);
+  --shadow-md: 0 4px 12px rgb(36 26 23 / 10%);
+  --shadow-lg: 0 12px 32px rgb(36 26 23 / 14%);
+}
+
+/* Dark mode: deep red and warm browns with blue */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Brand and actions */
+  --color-primary: #d1403a;
+  --color-primary-hover: #e0574f;
+  --color-primary-active: #ee7b72;
+  --color-primary-subtle: #3a1816;
+  --color-text-on-primary: #ffffff;
+  --color-secondary: #9bb9ff;
+  --color-secondary-hover: #b6cdff;
+  --color-accent: #c9a27a;
+
+  /* Backgrounds and surfaces */
+  --color-background: #120d0c;
+  --color-surface: #1c1513;
+  --color-surface-raised: #261c19;
+  --color-surface-sunken: #0c0807;
+  --color-overlay: rgb(0 0 0 / 65%);
+
+  /* Text */
+  --color-text-primary: #f3ebe6;
+  --color-text-secondary: #ddd3cd;
+  --color-text-muted: #c2b8b1;
+  --color-text-inverse: #120d0c;
+  --color-text-link: #9dbbff;
+  --color-text-link-hover: #bcd1ff;
+
+  /* Borders and focus */
+  --color-border: #3a2b27;
+  --color-border-strong: #7a645d;
+  --color-focus-ring: #9dbbff;
+  --color-selection: #2b3a66;
+
+  /* Hero: banner art that stays dark in every mode */
+  --color-hero-bg: #000000;
+  --color-hero-text: #f5f2ee;
+
+  /* Status */
+  --color-success: #6fcf97;
+  --color-success-subtle: #1a2e20;
+  --color-warning: #f0c16f;
+  --color-warning-subtle: #3b2e19;
+  --color-danger: #ff8a80;
+  --color-danger-subtle: #442220;
+  --color-info: #83c5e8;
+  --color-info-subtle: #1c3040;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 20%);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 28%);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 40%);
+}

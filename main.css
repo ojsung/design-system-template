@@ -1,0 +1,167 @@
+/* Shared tokens */
+:root {
+  /* Typography */
+  --font-family-title: "Archivo", sans-serif;
+  --font-family-body: "Barlow", sans-serif;
+  --font-family-sans: var(--font-family-body);
+  --font-family-serif: Georgia, serif;
+  --font-family-mono: "SFMono-Regular", Consolas, monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Spacing */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Shape and sizing */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+  --control-height-sm: 2rem;
+  --control-height-md: 2.5rem;
+  --control-height-lg: 3rem;
+  --container-width: 72rem;
+  --site-header-height: 4.25rem;
+
+  /* Motion and layering */
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --easing-standard: ease-in-out;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-tooltip: 500;
+}
+
+/* Light mode */
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Brand and actions */
+  --color-primary: #a31f2a;
+  --color-primary-hover: #861823;
+  --color-primary-active: #6b1019;
+  --color-primary-subtle: #f6e4e5;
+  --color-text-on-primary: #ffffff;
+  --color-secondary: #4d6a88;
+  --color-secondary-hover: #3d556e;
+  --color-accent: #8a94a0;
+
+  /* Backgrounds and surfaces */
+  --color-background: #f3f1ee;
+  --color-surface: #fbfaf8;
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #e7e4df;
+  --color-overlay: rgb(29 28 29 / 50%);
+
+  /* Text */
+  --color-text-primary: #1d1c1d;
+  --color-text-secondary: #4a4a4e;
+  --color-text-muted: #6f6d72;
+  --color-text-inverse: #ffffff;
+  --color-text-link: #a31f2a;
+  --color-text-link-hover: #861823;
+
+  /* Borders and focus */
+  --color-border: #d6d3ce;
+  --color-border-strong: #aaa6a0;
+  --color-focus-ring: #4d6a88;
+  --color-selection: #ecd0d2;
+
+  /* Hero: banner art that stays dark in every mode */
+  --color-hero-bg: #000000;
+  --color-hero-text: #f5f2ee;
+
+  /* Status */
+  --color-success: #1f7a4a;
+  --color-success-subtle: #e4f3ea;
+  --color-warning: #8a5a10;
+  --color-warning-subtle: #fbf0d9;
+  --color-danger: #b3322b;
+  --color-danger-subtle: #fae9e7;
+  --color-info: #286b9b;
+  --color-info-subtle: #e6f1f8;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgb(29 28 29 / 8%);
+  --shadow-md: 0 4px 12px rgb(29 28 29 / 10%);
+  --shadow-lg: 0 12px 32px rgb(29 28 29 / 14%);
+}
+
+/* Dark mode */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Brand and actions */
+  --color-primary: #d9363a;
+  --color-primary-hover: #e5484c;
+  --color-primary-active: #f06063;
+  --color-primary-subtle: #3a1517;
+  --color-text-on-primary: #ffffff;
+  --color-secondary: #8fa6bf;
+  --color-secondary-hover: #a9bcd1;
+  --color-accent: #d8dde3;
+
+  /* Backgrounds and surfaces */
+  --color-background: #0e0f11;
+  --color-surface: #17191c;
+  --color-surface-raised: #212428;
+  --color-surface-sunken: #090a0b;
+  --color-overlay: rgb(0 0 0 / 65%);
+
+  /* Text */
+  --color-text-primary: #eef0f2;
+  --color-text-secondary: #c0c5cc;
+  --color-text-muted: #8b919a;
+  --color-text-inverse: #0e0f11;
+  --color-text-link: #ff7b7d;
+  --color-text-link-hover: #ff9b9d;
+
+  /* Borders and focus */
+  --color-border: #30343a;
+  --color-border-strong: #4d535c;
+  --color-focus-ring: #a9bcd1;
+  --color-selection: #4a2022;
+
+  /* Hero: banner art that stays dark in every mode */
+  --color-hero-bg: #000000;
+  --color-hero-text: #f5f2ee;
+
+  /* Status */
+  --color-success: #6fcf97;
+  --color-success-subtle: #17301f;
+  --color-warning: #f0c16f;
+  --color-warning-subtle: #3a2f19;
+  --color-danger: #ff8a80;
+  --color-danger-subtle: #3f1d1c;
+  --color-info: #83c5e8;
+  --color-info-subtle: #1b303d;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 20%);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 28%);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 40%);
+}
