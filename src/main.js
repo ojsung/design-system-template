@@ -2,7 +2,7 @@
 // Everything else on this page is CSS only. The inline script in index.html applies
 // the saved choice before first paint; this file wires up the buttons.
 const root = document.documentElement;
-const modeButtons = document.querySelectorAll('[data-mode]');
+const modeToggle = document.getElementById('mode-toggle');
 const paletteToggle = document.getElementById('palette-toggle');
 const altStylesheet = document.getElementById('alt-theme');
 const systemLight = window.matchMedia('(prefers-color-scheme: light)');
@@ -31,14 +31,14 @@ function showColorValues() {
   });
 }
 
-// Dark is the default. System follows the OS when it says light, and falls back to dark otherwise.
-let mode = read('theme-mode', 'dark');
+// System is the default. It follows the OS when it says light, and falls back to dark otherwise.
+let mode = read('theme-mode', 'system');
 let palette = read('theme-palette', 'main');
 
 function applyMode() {
   const resolved = mode === 'system' ? (systemLight.matches ? 'light' : 'dark') : mode;
   root.dataset.theme = resolved === 'light' ? 'light' : 'dark';
-  modeButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.mode === mode)));
+  modeToggle.textContent = `Mode: ${mode[0].toUpperCase()}${mode.slice(1)}`;
   showColorValues();
 }
 
@@ -49,12 +49,12 @@ function applyPalette() {
   showColorValues();
 }
 
-modeButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    mode = button.dataset.mode;
-    write('theme-mode', mode);
-    applyMode();
-  });
+// Mode cycles System, Light, Dark.
+const MODES = ['system', 'light', 'dark'];
+modeToggle.addEventListener('click', () => {
+  mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+  write('theme-mode', mode);
+  applyMode();
 });
 
 paletteToggle.addEventListener('click', () => {
@@ -79,6 +79,42 @@ document.querySelectorAll('.menu nav a').forEach((link) => {
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') menuToggle.checked = false;
 });
+
+// Top bar. When the section links (or the brand and toolbar) stop fitting on their rows, collapse
+// everything into the hamburger menu. Measured with the collapse switched off, so it works at any width.
+const topbar = document.querySelector('.topbar');
+const topbarRow = topbar.querySelector('.container');
+const topbarNav = topbar.querySelector('nav');
+const navLinks = new Map([...topbarNav.querySelectorAll('a')].map((link) => [link.getAttribute('href').slice(1), link]));
+const sections = [...navLinks.keys()].map((id) => document.getElementById(id)).filter(Boolean);
+
+function fitTopbar() {
+  topbar.classList.remove('is-collapsed');
+  const crowded = topbarNav.scrollWidth > topbarNav.clientWidth || topbarRow.scrollWidth > topbarRow.clientWidth;
+  topbar.classList.toggle('is-collapsed', crowded);
+  if (!crowded) menuToggle.checked = false;
+  root.style.setProperty('--topbar-height', `${topbar.offsetHeight}px`);
+}
+
+// Mark the section being read (the last one whose top has passed just under the bar).
+let spyFrame = 0;
+function markCurrent() {
+  const line = topbar.offsetHeight + 24;
+  const current = sections.filter((section) => section.getBoundingClientRect().top <= line).pop();
+  navLinks.forEach((link, id) => {
+    if (current && current.id === id) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
+  });
+}
+
+window.addEventListener('resize', fitTopbar);
+window.addEventListener('scroll', () => {
+  cancelAnimationFrame(spyFrame);
+  spyFrame = requestAnimationFrame(markCurrent);
+}, { passive: true });
+document.fonts?.ready.then(fitTopbar); // web fonts change the widths
+fitTopbar();
+markCurrent();
 
 // The example form is a demo, so submitting it checks the fields but sends nothing.
 document.querySelectorAll('form[data-demo]').forEach((form) => {
@@ -139,6 +175,41 @@ if (track) {
   });
 
   render();
+}
+
+// View toggle: mobile view swaps the page for a phone-width frame of this same page (?embed), so the
+// real mobile breakpoints apply. The same button moves into the bar above the frame. The frame hides
+// its own copy of the button via CSS.
+const viewToggle = document.getElementById('view-toggle');
+const toolbar = viewToggle.parentElement;
+let stage = null;
+
+function applyView(view) {
+  const mobile = view === 'mobile';
+  root.dataset.view = mobile ? 'mobile' : 'desktop';
+  viewToggle.setAttribute('aria-pressed', String(mobile));
+  viewToggle.textContent = mobile ? 'View: Mobile' : 'View: Desktop';
+  if (mobile) {
+    stage = document.createElement('div');
+    stage.className = 'device-stage';
+    stage.innerHTML = '<div class="device-bar"><span>Phone-width preview (390px)</span></div><iframe class="device-frame" title="Mobile view"></iframe>';
+    stage.querySelector('iframe').src = `?embed${location.hash}`;
+    stage.querySelector('.device-bar').append(viewToggle);
+    document.body.append(stage);
+  } else if (stage) {
+    toolbar.append(viewToggle);
+    stage.remove();
+    stage = null;
+  }
+}
+
+if (!('embed' in root.dataset)) {
+  viewToggle.addEventListener('click', () => {
+    const next = root.dataset.view === 'mobile' ? 'desktop' : 'mobile';
+    write('view', next);
+    applyView(next);
+  });
+  if (read('view', 'desktop') === 'mobile') applyView('mobile');
 }
 
 applyMode();

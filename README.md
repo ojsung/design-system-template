@@ -8,9 +8,11 @@ A small, dependency-free design system built from plain CSS custom properties, p
 | --- | --- |
 | `main.css` | Shared tokens (type, spacing, shape, motion, layering) and the default light and dark color tokens. |
 | `main-alt.css` | An alternate palette. Overrides only the light and dark color tokens. Load it after `main.css`. |
-| `components.css` | Base element styles and components built on the tokens (buttons, forms, cards, badges, carousel, dividers, grid). |
+| `components.css` | Base element styles and components built on the tokens (buttons, forms, cards, badges, carousel, image and text link lists, dividers, grid). |
 | `index.html` | The style guide. Shows every token and component, with light/dark/system and main/alt switches. |
-| `src/main.js` | Wires up the style guide's mode and palette buttons. Not needed by sites that use the CSS. |
+| `src/main.js` | Wires up the style guide's mode, palette and desktop/mobile view buttons. Not needed by sites that use the CSS. |
+| `src/item-links.js` | Demo for the "Image link lists" section (layouts and ways to open an item). Sites that use the pattern write their own. |
+| `src/entry-groups.js` | Show more / show fewer buttons for the "Text link lists" section. Small enough to copy into a site. |
 
 ## Preview the style guide
 

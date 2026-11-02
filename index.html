@@ -13,7 +13,7 @@
     <!-- Applies the saved mode and theme before first paint so the page doesn't flash. -->
     <script>
       (function () {
-        var mode = 'dark', palette = 'main';
+        var mode = 'system', palette = 'main';
         try {
           mode = localStorage.getItem('theme-mode') || mode;
           palette = localStorage.getItem('theme-palette') || palette;
@@ -23,6 +23,9 @@
           theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
         }
         document.documentElement.dataset.theme = theme === 'light' ? 'light' : 'dark';
+        // Mobile view shows this page inside a phone-width frame of itself (?embed). The frame is the embed.
+        if (/[?&]embed(&|$)/.test(location.search)) document.documentElement.dataset.embed = '';
+        else if (localStorage.getItem('view') === 'mobile') document.documentElement.dataset.view = 'mobile';
         document.getElementById('alt-theme').disabled = palette !== 'alt';
       })();
     </script>
@@ -191,15 +194,14 @@
           <a href="#shape">Shape &amp; sizing</a>
           <a href="#forms">Forms</a>
           <a href="#carousel">Photo carousel</a>
+          <a href="#image-lists">Image lists</a>
+          <a href="#text-lists">Text lists</a>
           <a href="#site-parts">Site parts</a>
         </nav>
         <div class="toolbar">
-          <div class="segmented" role="group" aria-label="Color mode">
-            <button type="button" data-mode="light" aria-pressed="false">Light</button>
-            <button type="button" data-mode="dark" aria-pressed="true">Dark</button>
-            <button type="button" data-mode="system" aria-pressed="false">System</button>
-          </div>
+          <button class="btn sm ghost" id="mode-toggle" type="button">Mode: System</button>
           <button class="btn sm ghost" id="palette-toggle" type="button" aria-pressed="false">Theme: Main</button>
+          <button class="btn sm ghost" id="view-toggle" type="button" aria-pressed="false">View: Desktop</button>
         </div>
         </div>
       </div>
@@ -596,6 +598,321 @@
           </div>
         </div>
       </section>
+      <section id="image-lists">
+        <div class="container">
+          <h2>Image link lists</h2>
+          <p class="lede">For a long list of links to pages on another site, where each one has a picture. Every item opens on its own site, so the destination keeps its own views, ads, analytics and sign-in. Two choices make up the pattern: how the list is laid out, and what happens when a visitor chooses an item. The recommended pairings come first, and every combination can be tried below. The items are samples that all point to one example page.</p>
+
+          <div class="block">
+            <h3>Recommended combinations</h3>
+            <p class="lede" style="margin-bottom: var(--space-4)">Any layout can be paired with any way of opening an item. These pairings are the ones worth starting with, and why.</p>
+            <ul class="auto-grid" style="--grid-min: 16rem">
+              <li class="card">
+                <span class="badge">Best default</span>
+                <h4 style="margin-top: var(--space-3)">List + New tab</h4>
+                <p style="margin-top: var(--space-2)">Every item opens on its own site, so nothing can break and the destination keeps everything it earns from a visit. The list stays open in the old tab, so getting back is closing a tab. Visited marks and the welcome-back banner show where the visitor is and offer the next item, which is what keeps people moving through several in one sitting. Works the same on phones and desktops.</p>
+              </li>
+              <li class="card">
+                <span class="badge">Most visual</span>
+                <h4 style="margin-top: var(--space-3)">Grid + Expand</h4>
+                <p style="margin-top: var(--space-2)">Images make a long catalog quick to browse, and opening a card shows the description before the visitor commits to leaving. Nothing scrolls or jumps to another view, so there is no way to get lost. Pick this when every item has a good image. Expanded cards don't track visited items yet.</p>
+              </li>
+              <li class="card">
+                <span class="badge">Biggest catalog</span>
+                <h4 style="margin-top: var(--space-3)">Shelves + New tab</h4>
+                <p style="margin-top: var(--space-2)">One row per category turns a very long list into a few screens, and visitors discover items in categories they would never scroll to. The new-tab pattern keeps the easy way back. It only works when the items sort into clear categories.</p>
+              </li>
+              <li class="card">
+                <span class="badge">Test first</span>
+                <h4 style="margin-top: var(--space-3)">Any layout + Viewer</h4>
+                <p style="margin-top: var(--space-2)">The strongest way to keep visitors on your site, with Back, Previous and Next always in reach. It is also the riskiest: the other site has to allow being framed, and anything you rely on there (ads, analytics, sign-in) has to keep working inside a frame. Check both before building on it.</p>
+              </li>
+            </ul>
+          </div>
+
+          <div class="block">
+            <h3>Try the combinations</h3>
+            <div data-item-demo="playground">
+              <div class="item-pickers">
+                <div class="picker">
+                  <span class="label" id="picker-layout">1. Layout</span>
+                  <div class="segmented" role="group" aria-labelledby="picker-layout">
+                    <button type="button" data-layout="list" aria-pressed="true">List</button>
+                    <button type="button" data-layout="grid" aria-pressed="false">Grid</button>
+                    <button type="button" data-layout="shelves" aria-pressed="false">Shelves</button>
+                  </div>
+                </div>
+                <div class="picker">
+                  <span class="label" id="picker-opening">2. When an item is chosen</span>
+                  <div class="segmented" role="group" aria-labelledby="picker-opening">
+                    <button type="button" data-opening="viewer" aria-pressed="true">Viewer</button>
+                    <button type="button" data-opening="newtab" aria-pressed="false">New tab</button>
+                    <button type="button" data-opening="expand" aria-pressed="false">Expand</button>
+                  </div>
+                </div>
+              </div>
+              <p class="item-note" role="status"></p>
+
+              <div class="welcome-back" role="status" hidden>
+                <p><b>Welcome back.</b><span data-slot="msg"></span></p>
+                <div class="actions">
+                  <a class="btn" data-act="open" target="_blank" rel="noopener">Open the next one ↗</a>
+                  <button class="btn ghost" type="button" data-act="dismiss">Not now</button>
+                </div>
+              </div>
+              <div class="item-tools"></div>
+              <div class="item-out"></div>
+              <p class="help reset-row" style="margin-top: var(--space-3)" hidden><button class="btn sm ghost" type="button" data-act="reset">Reset visited marks</button></p>
+              <div class="viewer" hidden>
+                <div class="viewer-bar">
+                  <button class="btn sm ghost" type="button" data-act="back">← Items</button>
+                  <span class="viewer-title"></span>
+                  <span class="spacer"></span>
+                  <button class="btn sm ghost" type="button" data-act="prev" aria-label="Previous item">‹</button>
+                  <button class="btn sm ghost" type="button" data-act="next" aria-label="Next item">›</button>
+                  <a class="btn sm" data-act="open" target="_blank" rel="noopener">Open in new tab ↗</a>
+                </div>
+                <iframe class="viewer-frame" title="Item" loading="lazy"></iframe>
+                <div class="viewer-note">Page not loading? Some sites refuse to be framed. Use <a data-act="open" target="_blank" rel="noopener">open in new tab</a>.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="text-lists">
+        <div class="container">
+          <h2>Text link lists</h2>
+          <p class="lede">For a long list of links with no picture, each with a short description and a label that says why it matters: awards, press mentions, certifications, partners. The label leads, because it is what earns the visitor's trust, and the whole entry is a link that opens in a new tab. Ranked groups, such as Winner and Runner Up, are shown top tier first. A recurring label, such as a monthly feature, becomes one compact group with the month on each row. Long groups show a few entries and expand on request. The entries are samples that all point to one example page.</p>
+
+          <ul class="entry-tally" aria-label="Jump to a group"><li><a href="#text-wins"><b>3</b><span>Wins</span></a></li><li><a href="#text-runner"><b>4</b><span>Runner-ups</span></a></li><li><a href="#text-honorable"><b>6</b><span>Honorable mentions</span></a></li><li><a href="#text-top"><b>9</b><span>Editor's picks</span></a></li></ul>
+
+          <div class="entry-group entry-featured" id="text-wins">
+            <header><h4>Winner</h4><span>3 entries</span></header>
+            <ul class="entry-list">
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">★</span>
+                <div>
+                  <div class="entry-headline">Winner: Annual Contest</div>
+                  <div class="entry-meta">Open Category · 2025</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Harbor Lights</a></div>
+                  <p class="entry-blurb">A neighborhood project that rebuilt a waterfront from scratch.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">★</span>
+                <div>
+                  <div class="entry-headline">Winner: Spring Showcase</div>
+                  <div class="entry-meta">Featured Category · 2024</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">The Quiet Orchard</a></div>
+                  <p class="entry-blurb">A season of work on a family farm, in twelve photographs.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">★</span>
+                <div>
+                  <div class="entry-headline">Winner: Community Choice</div>
+                  <div class="entry-meta">Public Vote · 2023</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Paper Moons</a></div>
+                  <p class="entry-blurb">Two siblings build a city out of cardboard.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="entry-group " id="text-runner">
+            <header><h4>First Runner Up</h4><span>4 entries</span></header>
+            <ul class="entry-list" data-limit="2">
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">❖</span>
+                <div>
+                  <div class="entry-headline">First Runner Up: Design Awards</div>
+                  <div class="entry-meta">Category Finalist · 2025</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Signal &amp; Salt</a></div>
+                  <p class="entry-blurb">A coastal radio station&#x27;s visual identity.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">❖</span>
+                <div>
+                  <div class="entry-headline">First Runner Up: Open Call</div>
+                  <div class="entry-meta">Juried Entry · 2024</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Second Hand</a></div>
+                  <p class="entry-blurb">A repair shop that keeps one customer&#x27;s watch.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">❖</span>
+                <div>
+                  <div class="entry-headline">First Runner Up: Spring Showcase</div>
+                  <div class="entry-meta">Featured Category · 2024</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Cold Open</a></div>
+                  <p class="entry-blurb">A newsroom, one bad tip, and a very long night.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">❖</span>
+                <div>
+                  <div class="entry-headline">First Runner Up: Annual Contest</div>
+                  <div class="entry-meta">Open Category · 2023</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Forty Seconds</a></div>
+                  <p class="entry-blurb">A full account in the time it takes a train to pass.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="entry-group " id="text-honorable">
+            <header><h4>Honorable Mention</h4><span>6 entries</span></header>
+            <ul class="entry-list" data-limit="2">
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">✦</span>
+                <div>
+                  <div class="entry-headline">Honorable Mention: Summer Reads</div>
+                  <div class="entry-meta">Seasonal Pick · 2024</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Room Nineteen</a></div>
+                  <p class="entry-blurb">The hotel only has eighteen rooms.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">✦</span>
+                <div>
+                  <div class="entry-headline">Honorable Mention: Open Call</div>
+                  <div class="entry-meta">Juried Entry · 2024</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Glass Birds</a></div>
+                  <p class="entry-blurb">A short, strange piece told in window reflections.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">✦</span>
+                <div>
+                  <div class="entry-headline">Honorable Mention: Design Awards</div>
+                  <div class="entry-meta">Category Finalist · 2023</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Lantern Fish</a></div>
+                  <p class="entry-blurb">A deep-sea crew argues over what the light is saying.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">✦</span>
+                <div>
+                  <div class="entry-headline">Honorable Mention: Community Choice</div>
+                  <div class="entry-meta">Public Vote · 2023</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Moth Season</a></div>
+                  <p class="entry-blurb">A small town waits for the night the lights go out.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">✦</span>
+                <div>
+                  <div class="entry-headline">Honorable Mention: Spring Showcase</div>
+                  <div class="entry-meta">Featured Category · 2023</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Orbit Etiquette</a></div>
+                  <p class="entry-blurb">A seating chart that nearly ended a summit.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-badge" aria-hidden="true">✦</span>
+                <div>
+                  <div class="entry-headline">Honorable Mention: Annual Contest</div>
+                  <div class="entry-meta">Open Category · 2022</div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Borrowed Rain</a></div>
+                  <p class="entry-blurb">A drought town buys weather from a stranger.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="entry-group entry-compact" id="text-top">
+            <header><h4>Editor's Pick</h4><span>9 entries · newest first</span></header>
+            <ul class="entry-list" data-limit="3">
+              <li class="entry">
+                <span class="entry-tag">Mar<em>2026</em></span>
+                <div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Harbor Lights</a></div>
+                  <p class="entry-blurb">A neighborhood project that rebuilt a waterfront from scratch.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-tag">Feb<em>2026</em></span>
+                <div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">The Quiet Orchard</a></div>
+                  <p class="entry-blurb">A season of work on a family farm, in twelve photographs.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-tag">Apr<em>2026</em></span>
+                <div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Ninety Floors Down</a></div>
+                  <p class="entry-blurb">An elevator inspector finds a button that isn&#x27;t on the plans.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-tag">Jan<em>2026</em></span>
+                <div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Glass Birds</a></div>
+                  <p class="entry-blurb">A short, strange piece told in window reflections.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-tag">Dec<em>2025</em></span>
+                <div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Cold Open</a></div>
+                  <p class="entry-blurb">A newsroom, one bad tip, and a very long night.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-tag">Nov<em>2025</em></span>
+                <div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Lantern Fish</a></div>
+                  <p class="entry-blurb">A deep-sea crew argues over what the light is saying.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-tag">Oct<em>2025</em></span>
+                <div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">The Understudy</a></div>
+                  <p class="entry-blurb">A stage actor realizes the play is about her.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-tag">Sep<em>2025</em></span>
+                <div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Borrowed Rain</a></div>
+                  <p class="entry-blurb">A drought town buys weather from a stranger.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+              <li class="entry">
+                <span class="entry-tag">Aug<em>2025</em></span>
+                <div>
+                  <div class="entry-title"><a href="https://en.wikipedia.org/wiki/Literacy" target="_blank" rel="noopener">Second Hand</a></div>
+                  <p class="entry-blurb">A repair shop that keeps one customer&#x27;s watch.</p>
+                </div>
+                <span class="entry-go" aria-hidden="true">Open →</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <section id="site-parts">
         <div class="container">
           <h2>Site parts</h2>
@@ -639,5 +956,7 @@
     </footer>
 
     <script type="module" src="./src/main.js"></script>
+    <script type="module" src="./src/item-links.js"></script>
+    <script type="module" src="./src/entry-groups.js"></script>
   </body>
 </html>
